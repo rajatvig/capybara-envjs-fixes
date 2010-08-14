@@ -159,4 +159,3 @@ class Capybara::Driver::Envjs
     env
   end
 end
-
