@@ -8,6 +8,13 @@ module Johnson
           # when setTimeout is used before submitting a link, the $event array could have been cleared (as env.js is reloaded) before the event is triggerred
           script.gsub!("if ( target.uuid && $events[target.uuid][event.type] ) {", "if ( target.uuid && $events[target.uuid] && $events[target.uuid][event.type] ) {")
           script.gsub!("WARNIING", "WARNING")
+          # The Env.js wait_until(secs) method will wait until the eventLoop is quit for the specified number of seconds
+          # This is usefull when waiting for XHR requests to return a result. However there are some jquery libraries that depend
+          # upon "eternal" loops. The following method is used to not execute these loops (note that an alternative would be to
+          # slow down the loops, or to alter the event_loop.js#wait method to ignore these eternal loops.)
+          loopy_functions = ["loopy", "self\.setSizes\(\)"] # jquery.url_utils.js#loopy, dhtmlxgrid.js#auto-resize
+          script.gsub!("return $master.eventLoop.setTimeout($inner,fn,time);",
+                       "if ((''+fn).match(/#{loopy_functions.join("|")}/)) { return 9999; } return $master.eventLoop.setTimeout($inner,fn,time);")
         end
         if (filename =~ /static.js$/)
           # the table/row.cells() method should return td as well as th's
@@ -28,13 +35,14 @@ module CucumberJavascript
       }
     };
   }
-
+  
+  # When the timers disable buttons/links just after they have been clicked, the following will not work
   MOCK_SET_TIMEOUT = %{
     setTimeout = function() {
       arguments[0].call();
     };
   }
-  
+
   MOCK_JQUERY_FADE = %{
     (function() {
       $.fn.fadeOut = function() {
