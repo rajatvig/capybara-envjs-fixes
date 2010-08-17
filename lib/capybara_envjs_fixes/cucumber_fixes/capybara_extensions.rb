@@ -44,6 +44,12 @@ class Capybara::Driver::Envjs::Node
       capybara_node.node.style['display'] == 'none' || capybara_node['class'] =~ /hide/
     end
   end
+
+  def disabled?
+    all_unfiltered("./ancestor-or-self::*").any? do |node|
+      node['class'] =~ /disabled/ || node['readonly'] || node['disabled']
+    end
+  end
 end
 
 class Capybara::Driver::Envjs
