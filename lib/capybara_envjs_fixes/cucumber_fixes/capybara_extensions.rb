@@ -41,7 +41,7 @@ class Capybara::Driver::Envjs::Node
   # computed style
   def visible?
     all_unfiltered("./ancestor-or-self::*").none? do |capybara_node|
-      capybara_node.node.style['display'] == 'none'
+      capybara_node.node.style['display'] == 'none' || capybara_node['class'] =~ /hide/
     end
   end
 end

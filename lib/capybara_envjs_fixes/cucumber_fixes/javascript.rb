@@ -8,13 +8,15 @@ module Johnson
           # when setTimeout is used before submitting a link, the $event array could have been cleared (as env.js is reloaded) before the event is triggerred
           script.gsub!("if ( target.uuid && $events[target.uuid][event.type] ) {", "if ( target.uuid && $events[target.uuid] && $events[target.uuid][event.type] ) {")
           script.gsub!("WARNIING", "WARNING")
-          # The Env.js wait_until(secs) method will wait until the eventLoop is quit for the specified number of seconds
+          # The Env.js wait_until(secs) method will wait until the eventLoop is quiet for the specified number of seconds
           # This is usefull when waiting for XHR requests to return a result. However there are some jquery libraries that depend
           # upon "eternal" loops. The following method is used to not execute these loops (note that an alternative would be to
           # slow down the loops, or to alter the event_loop.js#wait method to ignore these eternal loops.)
-          loopy_functions = ["loopy", "self\.setSizes\(\)"] # jquery.url_utils.js#loopy, dhtmlxgrid.js#auto-resize
+          loopy_functions = ["loopy", "self\.setSizes\(\)", "self\.checkExpand\(\)", "update_next_targets"] # jquery.url_utils.js#loopy, dhtmlxgrid.js#auto-resize, jquery.autogrow.js, application specific
           script.gsub!("return $master.eventLoop.setTimeout($inner,fn,time);",
                        "if ((''+fn).match(/#{loopy_functions.join("|")}/)) { return 9999; } return $master.eventLoop.setTimeout($inner,fn,time);")
+          # functions that execute with a specified interval are loopy by definition, so change the behaviour and only execute them once
+          script.gsub!("return $master.eventLoop.setInterval($inner,fn,time);", "return $master.eventLoop.setTimeout($inner,fn,time);")
         end
         if (filename =~ /static.js$/)
           # the table/row.cells() method should return td as well as th's
