@@ -7,6 +7,9 @@ module Johnson
         if (filename =~ /env.js$/)
           # when setTimeout is used before submitting a link, the $event array could have been cleared (as env.js is reloaded) before the event is triggerred
           script.gsub!("if ( target.uuid && $events[target.uuid][event.type] ) {", "if ( target.uuid && $events[target.uuid] && $events[target.uuid][event.type] ) {")
+          # also __addEventListener__ and __removeEventListener__ may not have defined $events[target.uuid] yet
+          script.gsub!("if ( !$events[target.uuid][type] ){", "if ( !$events[target.uuid] ) { $events[target.uuid] = {} }; if ( !$events[target.uuid][type] ){")
+          # Typo
           script.gsub!("WARNIING", "WARNING")
           # The Env.js wait_until(secs) method will wait until the eventLoop is quiet for the specified number of seconds
           # This is usefull when waiting for XHR requests to return a result. However there are some jquery libraries that depend
