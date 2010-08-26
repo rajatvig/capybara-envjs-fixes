@@ -24,6 +24,9 @@ module Johnson
         if (filename =~ /static.js$/)
           # the table/row.cells() method should return td as well as th's
           script.gsub!("var nl = this.getElementsByTagName(\"td\");", "var nl = this.getElementsByTagName(\"td\"); if (nl.length === 0) { nl = this.getElementsByTagName(\"th\"); }")
+          # while cloning select options, the code tries to find the parent of the option, before the option is added to the document
+          script.gsub!("var i, anythingSelected;", "if (parent) { var i, anythingSelected;")
+          script.gsub!("parent.value = parent.options[0].value;", "parent.value = parent.options[0].value; }")
         end
         compile_without_fixes(script, filename, linenum, global)
       end
