@@ -27,6 +27,8 @@ module Johnson
           # while cloning select options, the code tries to find the parent of the option, before the option is added to the document
           script.gsub!("var i, anythingSelected;", "if (parent) { var i, anythingSelected;")
           script.gsub!("parent.value = parent.options[0].value;", "parent.value = parent.options[0].value; }")
+          # make sure the first select option is selected by default
+          script.gsub!("get selectedIndex(){", "get selectedIndex() { var options = this.options; for(var i=0;i<options.length;i++){ if(options[i].selected){ return i; } } if (options.length > 0) { options[0].selected = true; return 0; } return -1;")
         end
         compile_without_fixes(script, filename, linenum, global)
       end
