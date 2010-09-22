@@ -20,6 +20,8 @@ module Johnson
                        "if ((''+fn).match(/#{loopy_functions.join("|")}/)) { return 9999; } return $master.eventLoop.setTimeout($inner,fn,time);")
           # functions that execute with a specified interval are loopy by definition, so change the behaviour and only execute them once
           script.gsub!("return $master.eventLoop.setInterval($inner,fn,time);", "return $master.eventLoop.setTimeout($inner,fn,time);")
+          # skip hrefs defined as "javascript:void(0);"
+          script.gsub!('if (url[0] === "#") {', 'if (url[0] === "#" || url === "javascript:void(0);") {');
         end
         if (filename =~ /static.js$/)
           # the table/row.cells() method should return td as well as th's
