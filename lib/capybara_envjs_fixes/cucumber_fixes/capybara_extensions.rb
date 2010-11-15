@@ -7,7 +7,7 @@ class Capybara::Driver::Envjs::Node
   end
 
   def set_with_events(value)
-    case node.getAttribute("type")
+    case native.getAttribute("type")
     when "checkbox", "radio"
       set_radio(value)
     else
