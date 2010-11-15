@@ -40,13 +40,13 @@ class Capybara::Driver::Envjs::Node
   # hidden by setting the style attribute, which doesn't take into account the
   # computed style
   def visible?
-    all_unfiltered("./ancestor-or-self::*").none? do |capybara_node|
+    find("./ancestor-or-self::*").none? do |capybara_node|
       capybara_node.node.style['display'] == 'none' || capybara_node['class'] =~ /hide/
     end
   end
 
   def disabled?
-    all_unfiltered("./ancestor-or-self::*").any? do |node|
+    find("./ancestor-or-self::*").any? do |node|
       node['class'] =~ /disabled/ || node['readonly'] || node['disabled']
     end
   end
